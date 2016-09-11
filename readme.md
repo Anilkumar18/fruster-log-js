@@ -18,15 +18,15 @@ To use in app:
 
 ## Configuration
 
-  # Applications log level (error|warn|info|debug|silly)
-  LOG_LEVEL = "debug"
+    # Applications log level (error|warn|info|debug|silly)
+    LOG_LEVEL = "debug"
 
-  # Syslog host and port, if any
-  # Example: `localhost:5499`
-  SYSLOG = null
-  
-  # Name of syslog
-  SYSLOG_NAME = "fruster noname"
-  
-  # Syslog program name
-  SYSLOG_PROGRAM = "default"
+    # Syslog host and port, if any
+    # Example: `localhost:5499`
+    SYSLOG = null
+    
+    # Name of syslog
+    SYSLOG_NAME = "fruster noname"
+    
+    # Syslog program name
+    SYSLOG_PROGRAM = "default"
