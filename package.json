@@ -1,11 +1,11 @@
 {
   "name": "fruster-log",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Logger for Fruster (micro) services",
   "main": "index.js",
   "private": false,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./spec/support/jasmine-runner.js"
   },
   "keywords": [
     "fruster"
@@ -19,5 +19,9 @@
   "dependencies": {
     "winston": "^2.2.0",
     "winston-papertrail": "^1.0.3"
+  },
+  "devDependencies": {
+    "jasmine": "^2.4.1",
+    "jasmine-spec-reporter": "^2.7.0"
   }
 }

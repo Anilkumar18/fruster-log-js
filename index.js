@@ -5,9 +5,11 @@ require('winston-papertrail').Papertrail;
 var transports = [
   new winston.transports.Console({
     level: conf.logLevel,
+    humanReadableUnhandledException: true,
     handleExceptions: true,
-    json: true,
-    colorize: true
+    json: false,
+    colorize: true,
+    prettyPrint: true
   })
 ];
 
