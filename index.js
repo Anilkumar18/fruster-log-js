@@ -6,7 +6,7 @@ var transports = [
   new winston.transports.Console({
     level: conf.logLevel,
     handleExceptions: true,
-    json: false,
+    json: true,
     colorize: true
   })
 ];
