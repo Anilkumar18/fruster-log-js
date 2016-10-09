@@ -14,6 +14,9 @@ module.exports = {
 };
 
 function parseLogLevel(str) {
+  if(str) {
+    str = str.toLowerCase();
+  }
   // align log level naming so `trace` becomes `silly
-  return str && str.toLowerCase() === 'trace' ? 'silly' : str;
+  return str == 'trace' ? 'silly' : str;
 }
