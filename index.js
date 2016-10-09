@@ -1,6 +1,5 @@
 const winston = require('winston');
 const conf = require('./conf');
-require('winston-papertrail').Papertrail;
 
 var transports = [
   new winston.transports.Console({
@@ -14,19 +13,28 @@ var transports = [
 ];
 
 if(conf.syslog) {
+  require('winston-papertrail').Papertrail;
+  
   var hostAndPort = conf.syslog.split(':');
 
   if(hostAndPort.length != 2) {
-    console.log('ERROR: Invalid syslog host and port', conf.syslog);
+    console.error('ERROR: Invalid syslog host and port', conf.syslog);
   } else {
     console.log('Connecting to remote syslog', conf.syslog);
-    transports.push(new winston.transports.Papertrail({
+
+    var winstonPapertrail = new winston.transports.Papertrail({
       host: hostAndPort[0],
       port: hostAndPort[1],
       level: conf.logLevel,
       hostname: conf.syslogName,
       program: conf.syslogProgram
-    }));    
+    });
+
+    winstonPapertrail.on('error', function(err) {
+      console.error('Failed connecting to papertrail', hostAndPort, err);
+    });
+    
+    transports.push(winstonPapertrail);    
   }
 }
 
