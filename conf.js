@@ -10,7 +10,7 @@ module.exports = {
   syslogName: process.env.SYSLOG_NAME || 'fruster noname',
   
   // Syslog program name
-  syslogProgram: process.env.SYSLOG_PROGRAM || 'default'
+  syslogProgram: process.env.SYSLOG_PROGRAM || process.env.DEIS_APP || 'default'
 };
 
 function parseLogLevel(str) {
