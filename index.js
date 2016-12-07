@@ -12,12 +12,12 @@ var transports = [
   })
 ];
 
-if(conf.syslog) {
+if (conf.syslog) {
   require('winston-papertrail').Papertrail;
-  
+
   var hostAndPort = conf.syslog.split(':');
 
-  if(hostAndPort.length != 2) {
+  if (hostAndPort.length != 2) {
     console.error('ERROR: Invalid syslog host and port', conf.syslog);
   } else {
     console.log('Connecting to remote syslog', conf.syslog);
@@ -30,15 +30,19 @@ if(conf.syslog) {
       program: conf.syslogProgram
     });
 
-    winstonPapertrail.on('error', function(err) {
+    winstonPapertrail.on('error', function (err) {
       console.error('Failed connecting to papertrail', hostAndPort, err);
     });
-    
-    transports.push(winstonPapertrail);    
+
+    transports.push(winstonPapertrail);
   }
 }
 
 module.exports = new winston.Logger({
   transports: transports,
   exitOnError: false
+});
+
+process.on("unhandledRejection", function (reason) {
+  module.exports.error(reason);
 });
