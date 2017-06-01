@@ -38,10 +38,37 @@ if (conf.syslog) {
   }
 }
 
-module.exports = new winston.Logger({
-  transports: transports,
-  exitOnError: false
-});
+module.exports = (function () {
+  const w = new winston.Logger({
+    transports: transports,
+    exitOnError: false
+  });
+
+  if (conf.timestamps && !conf.syslog) {
+    const getTimestamp = () => {
+      return `[${new Date().toJSON()
+        .replace("Z", "")
+        .replace("T", " ")
+        .substring(0, 19)}]`;
+    };
+    const logTypes = [
+      { type: "debug", color: "\x1b[34m" },
+      { type: "info", color: "\x1b[34m" },
+      { type: "error", color: "\x1b[31m" }];
+    const originalFunctions = {};
+
+    logTypes.forEach(logTypeObj => {
+      originalFunctions[logTypeObj.type] = w[logTypeObj.type];
+      w[logTypeObj.type] = (...args) => {
+        let timestampedArgs = [`${logTypeObj.color}${getTimestamp()}\x1b[0m`];
+        args.forEach(a => timestampedArgs.push(a));
+        originalFunctions[logTypeObj.type].apply(this, timestampedArgs);
+      }
+    });
+  }
+
+  return w;
+}());
 
 process.on("unhandledRejection", function (reason) {
   module.exports.error(reason);
