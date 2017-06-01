@@ -12,7 +12,7 @@ module.exports = {
   // Syslog program name
   syslogProgram: process.env.SYSLOG_PROGRAM || process.env.DEIS_APP || 'default',
 
-  timestamps: process.env.LOG_TIMESTAMPS === "true" || false
+  timestamps: parseBoolean(process.env.LOG_TIMESTAMPS, true)
 
 };
 
@@ -22,4 +22,12 @@ function parseLogLevel(str) {
   }
   // align log level naming so `trace` becomes `silly
   return str == 'trace' ? 'silly' : str;
+}
+
+function parseBoolean(boolean, defaultValue) {
+  if (boolean === undefined) {
+    return defaultValue;
+  } else {
+    return boolean === "true";
+  }
 }

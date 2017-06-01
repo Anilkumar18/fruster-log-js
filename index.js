@@ -44,7 +44,7 @@ module.exports = (function () {
     exitOnError: false
   });
 
-  if (conf.timestamps) {
+  if (conf.timestamps && !conf.syslog) {
     const getTimestamp = () => {
       return `[${new Date().toJSON()
         .replace("Z", "")
