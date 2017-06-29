@@ -12,7 +12,10 @@ module.exports = {
   // Syslog program name
   syslogProgram: process.env.SYSLOG_PROGRAM || process.env.DEIS_APP || 'default',
 
-  timestamps: parseBoolean(process.env.LOG_TIMESTAMPS, true)
+  timestamps: parseBoolean(process.env.LOG_TIMESTAMPS, true),
+
+  // see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  timestampTimezone: process.env.LOG_TIMESTAMP_TIMEZONE || "Europe/Stockholm"
 
 };
 

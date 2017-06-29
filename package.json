@@ -18,7 +18,9 @@
   "license": "ISC",
   "dependencies": {
     "winston": "^2.2.0",
-    "winston-papertrail": "^1.0.3"
+    "winston-papertrail": "^1.0.3",
+    "moment": "^2.18.1",
+    "moment-timezone": "^0.5.13"
   },
   "devDependencies": {
     "jasmine": "^2.4.1",

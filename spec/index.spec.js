@@ -1,4 +1,5 @@
 const log = require('../index');
+const conf = require('../conf.js');
 
 describe('Fruster log', () => {
 
@@ -30,6 +31,18 @@ describe('Fruster log', () => {
         b: 2
       }
     }, 'yeah!');
+  });
+
+  it('should error log a json object in timezone', () => {
+    conf.timestampTimezone = "America/Los_Angeles";
+    log.error('Error: A JSON object', {
+      foo: 1,
+      bar: {
+        a: 1,
+        b: 2
+      }
+    }, 'yeah!');
+    conf.timestampTimezone = "Europe/Stockholm";
   });
 
 });

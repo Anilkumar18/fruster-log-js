@@ -1,4 +1,5 @@
 const winston = require('winston');
+const moment = require("moment-timezone");
 const conf = require('./conf');
 
 var transports = [
@@ -46,10 +47,8 @@ module.exports = (function () {
 
   if (conf.timestamps && !conf.syslog) {
     const getTimestamp = () => {
-      return `[${new Date().toJSON()
-        .replace("Z", "")
-        .replace("T", " ")
-        .substring(0, 19)}]`;
+      const timeZonedDate = moment(new Date()).tz(conf.timestampTimezone);
+      return `[${timeZonedDate.format("YYYY-MM-DD hh:mm:ss")}]`;
     };
     const logTypes = [
       { type: "debug", color: "\x1b[34m" },
