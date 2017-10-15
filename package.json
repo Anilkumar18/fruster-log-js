@@ -17,10 +17,13 @@
   },
   "license": "ISC",
   "dependencies": {
-    "winston": "^2.2.0",
-    "winston-papertrail": "^1.0.3",
+    "fruster-bus": "^0.2.10",
+    "fruster-test-utils": "^0.3.17",
     "moment": "^2.18.1",
-    "moment-timezone": "^0.5.13"
+    "moment-timezone": "^0.5.13",
+    "uuid": "^3.1.0",
+    "winston": "^2.2.0",
+    "winston-papertrail": "^1.0.3"
   },
   "devDependencies": {
     "jasmine": "^2.4.1",

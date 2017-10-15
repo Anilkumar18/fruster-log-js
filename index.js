@@ -1,8 +1,9 @@
-const winston = require('winston');
+const winston = require("winston");
 const moment = require("moment-timezone");
-const conf = require('./conf');
+const conf = require("./conf");
+const FrusterLogger = require("./FrusterLogger");
 
-var transports = [
+let transports = [
   new winston.transports.Console({
     level: conf.logLevel,
     humanReadableUnhandledException: true,
@@ -16,7 +17,7 @@ var transports = [
 if (conf.syslog) {
   require('winston-papertrail').Papertrail;
 
-  var hostAndPort = conf.syslog.split(':');
+  const hostAndPort = conf.syslog.split(':');
 
   if (hostAndPort.length != 2) {
     console.error('ERROR: Invalid syslog host and port', conf.syslog);
@@ -40,7 +41,7 @@ if (conf.syslog) {
 }
 
 module.exports = (function () {
-  const w = new winston.Logger({
+  const w = new FrusterLogger({
     transports: transports,
     exitOnError: false
   });
@@ -65,10 +66,10 @@ module.exports = (function () {
       }
     });
   }
-
+    
   return w;
 }());
 
-process.on("unhandledRejection", function (reason) {
+process.on("unhandledRejection", (reason) => {
   module.exports.error(reason);
 });
