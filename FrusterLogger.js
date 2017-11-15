@@ -4,13 +4,11 @@ const uuid = require("uuid");
 const conf = require("./conf");
 const moment = require("moment-timezone");
 
-const AUDIT_LOG_SUBJECT = "log-service.audit";
-const REMOTE_LOG_SUBJECT = "log-service.log";
 
 class FrusterLogger extends winston.Logger {
 
     constructor(logLevel = "info", timestampTimezone = "Europe/Stockholm") {
-        super({ 
+        super({
             exitOnError: false,
             level: logLevel,
             levels: {
@@ -61,14 +59,14 @@ class FrusterLogger extends winston.Logger {
      * Note that `remote()` cannot be defined as regular instance method
      * since Winston will overwrite it when winston.Logger is created.
      */
-    _attachRemoteLog() {        
+    _attachRemoteLog() {
         const superLog = this.remote;
 
-        this.remote = (...args) => {  
+        this.remote = (...args) => {
             superLog(...args);
-            this._publishOnBus(REMOTE_LOG_SUBJECT, {                
-                level: "info", // ?
-                message: args                
+            this._publishOnBus(FrusterLogger.REMOTE_LOG_SUBJECT, {
+                level: "info", // translate remote -> info on receiving side
+                message: args
             });
         };
     }
@@ -82,28 +80,28 @@ class FrusterLogger extends winston.Logger {
      * Note that `audit()` cannot be defined as regular instance method
      * since Winston will overwrite it when winston.Logger is created.
      */
-    _attachAuditLog() {        
+    _attachAuditLog() {
         const superLog = this.audit;
 
-        this.audit = (userId, message, payload) => {  
+        this.audit = (userId, message, payload) => {
             superLog(`[${userId}] ${message}`);
-            this._publishOnBus(AUDIT_LOG_SUBJECT, {
+            this._publishOnBus(FrusterLogger.AUDIT_LOG_SUBJECT, {
                 userId, message, payload
             });
         };
     }
-    
+
     _publishOnBus(subject, data) {
         // fruster-bus should expose better flag or function to check if connect
         // but this will do for now
         const isConnected = !!bus.request;
-    
+
         if (isConnected) {
             bus.publish(subject, {
                 reqId: uuid.v4(),
                 data
             });
-        }        
+        }
     }
 
     /**
@@ -128,10 +126,10 @@ class FrusterLogger extends winston.Logger {
             console.error(`Failed connecting to papertrail ${syslogHost}:${syslogPort}`, err);
         });
 
-        super.add(winstonPapertrail, null, true);        
+        super.add(winstonPapertrail, null, true);
     }
 
-    _configureConsoleLogging() { 
+    _configureConsoleLogging() {
         const consoleTransport = new winston.transports.Console({
             humanReadableUnhandledException: true,
             handleExceptions: true,
@@ -148,11 +146,14 @@ class FrusterLogger extends winston.Logger {
      * Function that returns timestamp used for console log.
      * Note that timestamp is not used for remote syslog.
      */
-    _getTimestamp() {         
-      const timeZonedDate = moment(new Date()).tz(this.timestampTimezone);
-      return `[${timeZonedDate.format("YYYY-MM-DD hh:mm:ss")}]`;
+    _getTimestamp()  {
+        const timeZonedDate = moment(new Date()).tz(this.timestampTimezone);
+        return `[${timeZonedDate.format("YYYY-MM-DD hh:mm:ss")}]`;
     }
 
 }
+
+FrusterLogger.AUDIT_LOG_SUBJECT = "log-service.audit";
+FrusterLogger.REMOTE_LOG_SUBJECT = "log-service.log";
 
 module.exports = FrusterLogger; 

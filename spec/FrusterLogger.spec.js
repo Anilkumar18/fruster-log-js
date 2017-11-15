@@ -11,14 +11,14 @@ describe("FrusterLogger", () => {
 		log = new FrusterLogger("silly", "Europe/Stockholm");
 	})
 
-	it("should log all levels", () => {		
-		log.error("This", "is", "error");		
-		log.warn("This", "is", "warn");		
-		log.remote("This", "is", "remote");		
-		log.audit("fake-user-id", "This is audit");		
-		log.info("This", "is", "info");		
-		log.debug("This", "is", "debug");		
-		log.silly("This", "is", "silly");		
+	it("should log all levels", () => {
+		log.error("This", "is", "error");
+		log.warn("This", "is", "warn");
+		log.remote("This", "is", "remote");
+		log.audit("fake-user-id", "This is audit");
+		log.info("This", "is", "info");
+		log.debug("This", "is", "debug");
+		log.silly("This", "is", "silly");
 	});
 
 	it("should info log a json object", () => {
@@ -52,7 +52,7 @@ describe("FrusterLogger", () => {
 	});
 
 	it("should error log in American timezone", () => {
-		log = new FrusterLogger("silly", "America/Los_Angeles");		
+		log = new FrusterLogger("silly", "America/Los_Angeles");
 		log.error("What time is it, Trump?");
 	});
 
@@ -68,22 +68,22 @@ describe("FrusterLogger", () => {
 		});
 
 		it("should audit log and post to bus", (done) => {
-			bus.subscribe("log-service.audit", (msg) => {
+			bus.subscribe(FrusterLogger.AUDIT_LOG_SUBJECT, (msg) => {
 				expect(msg.data.message).toBe("message");
 				expect(msg.data.userId).toBe("userId");
 				expect(msg.data.payload).toBe("payload");
 				done();
 			});
-			
+
 			log.audit("userId", "message", "payload");
 		});
 
 		it("should remote log and post to bus", (done) => {
-			bus.subscribe("log-service.log", (msg) => {				
-				expect(msg.data.message).toEqual(["hello", "world"]);				
+			bus.subscribe(FrusterLogger.REMOTE_LOG_SUBJECT, (msg) => {
+				expect(msg.data.message).toEqual(["hello", "world"]);
 				done();
 			});
-			
+
 			log.remote("hello", "world");
 		});
 	});
