@@ -153,7 +153,7 @@ class FrusterLogger extends winston.Logger {
 
 }
 
-FrusterLogger.AUDIT_LOG_SUBJECT = "log-service.audit";
-FrusterLogger.REMOTE_LOG_SUBJECT = "log-service.log";
+FrusterLogger.AUDIT_LOG_SUBJECT = "log.audit";
+FrusterLogger.REMOTE_LOG_SUBJECT = "log";
 
 module.exports = FrusterLogger; 
