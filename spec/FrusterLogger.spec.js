@@ -1,9 +1,25 @@
-const log = require("../index");
 const conf = require("../conf.js");
 const testUtils = require("fruster-test-utils");
 const bus = require("fruster-bus");
+const FrusterLogger = require("../FrusterLogger");
 
-describe("Fruster log", () => {
+describe("FrusterLogger", () => {
+
+	let log;
+
+	beforeEach(() => {
+		log = new FrusterLogger("silly", "Europe/Stockholm");
+	})
+
+	it("should log all levels", () => {		
+		log.error("This", "is", "error");		
+		log.warn("This", "is", "warn");		
+		log.remote("This", "is", "remote");		
+		log.audit("fake-user-id", "This is audit");		
+		log.info("This", "is", "info");		
+		log.debug("This", "is", "debug");		
+		log.silly("This", "is", "silly");		
+	});
 
 	it("should info log a json object", () => {
 		log.info("Info: A JSON object", {
@@ -35,23 +51,16 @@ describe("Fruster log", () => {
 		}, "yeah!");
 	});
 
-	it("should error log a json object in timezone", () => {
-		conf.timestampTimezone = "America/Los_Angeles";
-		log.error("Error: A JSON object", {
-			foo: 1,
-			bar: {
-				a: 1,
-				b: 2
-			}
-		}, "yeah!");
-		conf.timestampTimezone = "Europe/Stockholm";
+	it("should error log in American timezone", () => {
+		log = new FrusterLogger("silly", "America/Los_Angeles");		
+		log.error("What time is it, Trump?");
 	});
 
 	it("should audit log even though not connected to bus", () => {
 		log.audit("userId", "message");
 	});
 
-	describe("audit log when connected to bus", () => {
+	describe("audit and remote log when connected to bus", () => {
 
 		testUtils.startBeforeEach({
 			mockNats: true,
@@ -67,6 +76,15 @@ describe("Fruster log", () => {
 			});
 			
 			log.audit("userId", "message", "payload");
+		});
+
+		it("should remote log and post to bus", (done) => {
+			bus.subscribe("log-service.log", (msg) => {				
+				expect(msg.data.message).toEqual(["hello", "world"]);				
+				done();
+			});
+			
+			log.remote("hello", "world");
 		});
 	});
 
