@@ -60,7 +60,7 @@ describe("FrusterLogger", () => {
 		log.audit("userId", "message");
 	});
 
-	describe("audit and remote log when connected to bus", () => {
+	describe("error, audit and remote log when connected to bus", () => {
 
 		testUtils.startBeforeEach({
 			mockNats: true,
@@ -69,7 +69,7 @@ describe("FrusterLogger", () => {
 
 		it("should audit log and post to bus", (done) => {
 			bus.subscribe(FrusterLogger.AUDIT_LOG_SUBJECT, (msg) => {
-				expect(msg.data.message).toBe("message");
+				expect(msg.data.msg).toBe("message");
 				expect(msg.data.userId).toBe("userId");
 				expect(msg.data.payload).toBe("payload");
 				done();
@@ -80,11 +80,34 @@ describe("FrusterLogger", () => {
 
 		it("should remote log and post to bus", (done) => {
 			bus.subscribe(FrusterLogger.REMOTE_LOG_SUBJECT, (msg) => {
-				expect(msg.data.message).toEqual(["hello", "world"]);
+				expect(msg.data.msg).toEqual(["hello", "world"]);
+				expect(msg.data.level).toEqual("remote");
+				done();
+			});
+			
+			log.remote("hello", "world");
+		});
+		
+		it("should error log and post to bus", (done) => {
+			bus.subscribe(FrusterLogger.REMOTE_LOG_SUBJECT, (msg) => {
+				expect(msg.data.msg).toEqual(["hello", "world"]);
+				expect(msg.data.level).toEqual("error");
 				done();
 			});
 
-			log.remote("hello", "world");
+			log.error("hello", "world");
+		});
+
+		it("should info log and NOT post to bus", (done) => {
+			bus.subscribe(FrusterLogger.REMOTE_LOG_SUBJECT, (msg) => {				
+				done.fail();
+			});
+			
+			setTimeout(() => {
+				done();
+			}, 200);
+
+			log.info("hello", "world");
 		});
 	});
 

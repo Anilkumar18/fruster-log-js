@@ -1,94 +1,75 @@
 const winston = require("winston");
 const bus = require("fruster-bus");
 const uuid = require("uuid");
-const conf = require("./conf");
 const moment = require("moment-timezone");
+const constants = require("./constants");
 
+const LOG_LEVEL_REMOTE_NAME = "remote";
+const LOG_LEVEL_AUDIT_NAME = "audit";
 
 class FrusterLogger extends winston.Logger {
 
-    constructor(logLevel = "info", timestampTimezone = "Europe/Stockholm") {
+    constructor(logLevel = "info", timestampTimezone = "Europe/Stockholm", remoteLogLevel = "error") {
         super({
             exitOnError: false,
             level: logLevel,
-            levels: {
-                // Some really bad happened
-                error: 0,
-
-                // Something went wrong, but does not fail completely
-                warn: 1,
-
-                // Log to remote i.e. fruster-log-service if up an running
-                remote: 2,
-
-                // Audit log, will log to remote i.e. fruster-log-service if up and running
-                audit: 3,
-
-                // Info, not too verbose
-                info: 4,
-
-                // Debugging
-                debug: 5,
-
-                // Log everything!                
-                silly: 7
-            },
-            colors: {
-                error: "red",
-                warn: "yellow",
-                remote: "magenta",
-                audit: "green",
-                info: "cyan",
-                debug: "gray",
-                silly: "gray"
-            }
+            levels: constants.levels,
+            colors: constants.levelColors
         });
         this.logLevel = logLevel;
         this.timestampTimezone = timestampTimezone;
-        this._configureConsoleLogging();
-        this._attachRemoteLog();
-        this._attachAuditLog();
+        this.remoteLogLevel = remoteLogLevel;
+        this._configureConsoleLogging();        
+        this._attachRemoteLogs();
     }
 
     /**
-     * Attach log.remote().
+     * Attach and intercepts log levels that will be posted on bus, i.e.
+     * to fruster-log-service.
      * 
-     * Will intercept call to winstons log.remote() and post
-     * log on bus if configure to do so.
-     * 
-     * Note that `remote()` cannot be defined as regular instance method
-     * since Winston will overwrite it when winston.Logger is created.
+     * Note that log.audit() and log.remote() will always post to remote 
+     * no matter of config.
      */
-    _attachRemoteLog() {
-        const superLog = this.remote;
+    _attachRemoteLogs() {
+        const tresholdLevel = constants.levels[this.remoteLogLevel];
+        let levelsToAttach = [];
+                
+        if (tresholdLevel !== undefined /* it can be 0, hence undefined check */) {
+            // get all log levels from and "above" remote log level
+            levelsToAttach = Object.keys(constants.levels)
+                .filter(levelName => constants.levels[levelName] <= tresholdLevel);            
+        }
+        
+        // remote and audit log always log to remote no matter of config
+        if (!levelsToAttach.includes(LOG_LEVEL_REMOTE_NAME)) {
+            levelsToAttach.push(LOG_LEVEL_REMOTE_NAME);
+        }
+        
+        if (!levelsToAttach.includes(LOG_LEVEL_AUDIT_NAME)) {
+            levelsToAttach.push(LOG_LEVEL_AUDIT_NAME);
+        }
 
-        this.remote = (...args) => {
-            superLog(...args);
-            this._publishOnBus(FrusterLogger.REMOTE_LOG_SUBJECT, {
-                level: "info", // translate remote -> info on receiving side
-                message: args
-            });
-        };
-    }
+        levelsToAttach.forEach((level) => {
+            const superLog = this[level];
 
-    /**
-     * Attach log.audit().
-     * 
-     * Will intercept call to winstons log.audit() and post
-     * log on bus if configure to do so.
-     * 
-     * Note that `audit()` cannot be defined as regular instance method
-     * since Winston will overwrite it when winston.Logger is created.
-     */
-    _attachAuditLog() {
-        const superLog = this.audit;
-
-        this.audit = (userId, message, payload) => {
-            superLog(`[${userId}] ${message}`);
-            this._publishOnBus(FrusterLogger.AUDIT_LOG_SUBJECT, {
-                userId, message, payload
-            });
-        };
+            if (level === LOG_LEVEL_AUDIT_NAME) {
+                this[level] = (userId, msg, payload) => {
+                    superLog(`[${userId}] ${msg}`);
+                    
+                    this._publishOnBus(FrusterLogger.AUDIT_LOG_SUBJECT, {
+                        userId, msg, payload
+                    });
+                };
+            } else {
+                this[level] = (...msg) => {
+                    superLog(...msg);
+                    
+                    this._publishOnBus(FrusterLogger.REMOTE_LOG_SUBJECT, {
+                        level, msg
+                    });
+                }; 
+            }
+        });
     }
 
     _publishOnBus(subject, data) {
