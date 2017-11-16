@@ -29,7 +29,7 @@ module.exports = {
         remote: "magenta",
         audit: "green",
         info: "cyan",
-        debug: "gray",
+        debug: "reset",
         silly: "gray"
     }
 
