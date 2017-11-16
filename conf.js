@@ -19,7 +19,6 @@ module.exports = {
   
   // Treshold level that will post logs on the bus 
   remoteLogLevel: (process.env.REMOTE_LOG_LEVEL || "error").toLowerCase()
-
 };
 
 function parseLogLevel(str) {
