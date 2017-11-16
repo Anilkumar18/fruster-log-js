@@ -30,3 +30,7 @@ To use in app:
     
     # Syslog program name
     SYSLOG_PROGRAM = "default"
+
+    # Log level that will log remotely
+    REMOTE_LOG_LEVEL = "error"
+    

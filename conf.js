@@ -12,11 +12,13 @@ module.exports = {
   // Syslog program name
   syslogProgram: process.env.SYSLOG_PROGRAM || process.env.DEIS_APP || 'default',
 
-  timestamps: parseBoolean(process.env.LOG_TIMESTAMPS, true),
+  timestamps: process.env.LOG_TIMESTAMPS !== "false",
 
-  // see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  timestampTimezone: process.env.LOG_TIMESTAMP_TIMEZONE || "Europe/Stockholm"
-
+  // See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  timestampTimezone: process.env.LOG_TIMESTAMP_TIMEZONE || "Europe/Stockholm",
+  
+  // Treshold level that will post logs on the bus 
+  remoteLogLevel: (process.env.REMOTE_LOG_LEVEL || "error").toLowerCase()
 };
 
 function parseLogLevel(str) {
@@ -24,13 +26,5 @@ function parseLogLevel(str) {
     str = str.toLowerCase();
   }
   // align log level naming so `trace` becomes `silly
-  return str == 'trace' ? 'silly' : str;
-}
-
-function parseBoolean(boolean, defaultValue) {
-  if (boolean === undefined) {
-    return defaultValue;
-  } else {
-    return boolean === "true";
-  }
+  return str == "trace" ? "silly" : str;
 }
