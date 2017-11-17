@@ -1,11 +1,12 @@
 const winston = require("winston");
-const bus = require("fruster-bus");
 const uuid = require("uuid");
 const moment = require("moment-timezone");
 const constants = require("./constants");
 
 const LOG_LEVEL_REMOTE_NAME = "remote";
 const LOG_LEVEL_AUDIT_NAME = "audit";
+
+let bus;
 
 class FrusterLogger extends winston.Logger {
 
@@ -73,15 +74,24 @@ class FrusterLogger extends winston.Logger {
     }
 
     _publishOnBus(subject, data) {
+        if (!bus) {
+            // Lazy require fruster-bus to avoid hassle with circular dependencies
+            bus = require("fruster-bus");
+        }
+
         // fruster-bus should expose better flag or function to check if connect
         // but this will do for now
         const isConnected = !!bus.request;
 
         if (isConnected) {
-            bus.publish(subject, {
-                reqId: uuid.v4(),
-                data
-            });
+            try {
+                bus.publish(subject, {
+                    reqId: uuid.v4(),
+                    data
+                });
+            } catch (err) {
+                // Nothing to do, bus is not connected.
+            }
         }
     }
 
