@@ -157,9 +157,9 @@ class FrusterLogger extends winston.Logger {
     /**
      * Remote log.     
      * 
-     * @param {any=} args 
+     * @param {Array=} args 
      */
-    remote() {
+    remote(...args) {
         // Will be overridden in `_attachRemoteLogs()` but kept 
         // here to make intellisense work.
     }
