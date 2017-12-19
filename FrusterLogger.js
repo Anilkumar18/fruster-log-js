@@ -58,7 +58,7 @@ class FrusterLogger extends winston.Logger {
                     superLog(`[${userId}] ${msg}`);
 
                     this._publishOnBus(FrusterLogger.AUDIT_LOG_SUBJECT, {
-                        userId, msg, payload
+                        userId, msg, payload, level
                     });
                 };
             } else {
@@ -165,7 +165,7 @@ class FrusterLogger extends winston.Logger {
     }
 }
 
-FrusterLogger.AUDIT_LOG_SUBJECT = "log.audit";
+FrusterLogger.AUDIT_LOG_SUBJECT = "log";
 FrusterLogger.REMOTE_LOG_SUBJECT = "log";
 
 module.exports = FrusterLogger; 
