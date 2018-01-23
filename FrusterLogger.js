@@ -98,23 +98,24 @@ class FrusterLogger extends winston.Logger {
     /**
      * Enable logging to Papertrail using remote syslog.
      * 
-     * @param {String} syslogHost 
-     * @param {String} syslogPort 
+     * @param {String} syslogHostAndPort      
      * @param {String} syslogName 
      * @param {String} syslogProgram 
      */
-    enablePapertrailLogging(syslogHost, syslogPort, syslogName, syslogProgram) {
+    enablePapertrailLogging(syslogHostAndPort, syslogName, syslogProgram) {
         require("winston-papertrail").Papertrail;
 
+        const syslogHostAndPortSplit = syslogHostAndPort.split(":");
+
         let winstonPapertrail = new winston.transports.Papertrail({
-            host: syslogHost,
-            port: syslogPort,
+            host: syslogHostAndPortSplit[0],
+            port: syslogHostAndPortSplit[1],
             hostname: syslogName,
             program: syslogProgram
         });
 
         winstonPapertrail.on("error", function (err) {
-            console.error(`Failed connecting to papertrail ${syslogHost}:${syslogPort}`, err);
+            console.error(`Failed connecting to papertrail ${syslogHostAndPort}`, err);
         });
 
         super.add(winstonPapertrail, null, true);

@@ -26,6 +26,7 @@
     "winston-papertrail": "^1.0.3"
   },
   "devDependencies": {
+    "@types/jasmine": "^2.8.5",
     "jasmine": "^2.4.1",
     "jasmine-spec-reporter": "^2.7.0"
   }

@@ -3,9 +3,15 @@ const conf = require("./conf");
 const FrusterLogger = require("./FrusterLogger");
 
 module.exports = (function () {
-  return new FrusterLogger(conf.logLevel, conf.timestampTimezone, conf.remoteLogLevel);
+	const logger = new FrusterLogger(conf.logLevel, conf.timestampTimezone, conf.remoteLogLevel);
+	
+	if (conf.syslog) {
+		logger.enablePapertrailLogging(conf.syslog, conf.syslogName, conf.syslogProgram);
+	}
+
+	return logger;
 }());
 
 process.on("unhandledRejection", (reason) => {
-  module.exports.error(reason);
+	module.exports.error(reason);
 });
