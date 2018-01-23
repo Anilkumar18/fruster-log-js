@@ -1,6 +1,6 @@
 {
   "name": "fruster-log",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Logger for Fruster (micro) services",
   "main": "index.js",
   "private": false,
