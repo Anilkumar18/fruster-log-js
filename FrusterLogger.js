@@ -111,7 +111,8 @@ class FrusterLogger extends winston.Logger {
             host: syslogHostAndPortSplit[0],
             port: syslogHostAndPortSplit[1],
             hostname: syslogName,
-            program: syslogProgram
+            program: syslogProgram,
+            level: this.logLevel
         });
 
         winstonPapertrail.on("error", function (err) {
